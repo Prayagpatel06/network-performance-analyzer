@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Network Test History</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+            padding: 30px;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: #1f2937;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            margin-top: 25px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        th, td {
+            padding: 14px;
+            text-align: center;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background: #2563eb;
+            color: white;
+        }
+
+        tr:hover {
+            background: #f1f5f9;
+        }
+
+        .back {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background: #2563eb;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>Network Test History</h1>
+
+    <table>
+
+        <tr>
+            <th>Date & Time</th>
+            <th>Latency</th>
+            <th>Packet Loss</th>
+            <th>Download</th>
+            <th>Upload</th>
+            <th>Status</th>
+        </tr>
+
+        {% for test in tests %}
+
+        <tr>
+            <td>{{ test.timestamp }}</td>
+            <td>{{ test.latency }} ms</td>
+            <td>{{ test.packet_loss }}%</td>
+            <td>{{ test.download_speed }} Mbps</td>
+            <td>{{ test.upload_speed }} Mbps</td>
+            <td>{{ test.status }}</td>
+        </tr>
+
+        {% endfor %}
+
+    </table>
+
+    <a class="back" href="/">← Back to Dashboard</a>
+
+</div>
+
+</body>
+</html>
