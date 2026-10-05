@@ -12,45 +12,51 @@ app = Flask(__name__)
 def check_ping(host="8.8.8.8"):
     """Check network latency and packet loss."""
 
-    system = platform.system()
+    import socket
+    import time
 
-    if system == "Windows":
-        command = ["ping", "-n", "4", host]
+    latencies = []
+    successful = 0
+    total = 4
+
+    for _ in range(total):
+        try:
+            start = time.time()
+
+            connection = socket.create_connection(
+                (host, 53),
+                timeout=3
+            )
+
+            connection.close()
+
+            latency = round((time.time() - start) * 1000, 2)
+            latencies.append(latency)
+            successful += 1
+
+        except Exception:
+            pass
+
+    if successful > 0:
+        average_latency = round(
+            sum(latencies) / len(latencies), 2
+        )
     else:
-        command = ["ping", "-c", "4", host]
+        average_latency = None
 
-    result = subprocess.run(
-        command,
-        capture_output=True,
-        text=True
+    packet_loss = round(
+        ((total - successful) / total) * 100,
+        2
     )
 
-    output = result.stdout
+    output = (
+        f"Tests: {total}\n"
+        f"Successful: {successful}\n"
+        f"Packet Loss: {packet_loss}%\n"
+        f"Latencies: {latencies} ms"
+    )
 
-    latency = None
-    packet_loss = None
-
-    # Windows latency
-    if system == "Windows":
-
-        latency_match = re.search(
-            r"Average = (\d+)ms",
-            output
-        )
-
-        if latency_match:
-            latency = int(latency_match.group(1))
-
-        # Windows packet loss
-        loss_match = re.search(
-            r"\((\d+)% loss\)",
-            output
-        )
-
-        if loss_match:
-            packet_loss = int(loss_match.group(1))
-
-    return latency, packet_loss, output
+    return average_latency, packet_loss, output
 
 def check_speed():
     import speedtest
