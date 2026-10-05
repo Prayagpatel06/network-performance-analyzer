@@ -1,9 +1,14 @@
 <!DOCTYPE html>
 <html>
+
 <head>
+
     <title>Network Performance Analyzer</title>
 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <style>
+
         body {
             font-family: Arial, sans-serif;
             background: #f4f6f8;
@@ -28,7 +33,7 @@
 
         .button {
             display: block;
-            margin: 25px auto;
+            margin: 15px auto;
             padding: 12px 25px;
             background: #2563eb;
             color: white;
@@ -40,6 +45,11 @@
 
         .button:hover {
             background: #1d4ed8;
+        }
+
+        .button:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
         }
 
         .cards {
@@ -81,6 +91,12 @@
             font-weight: bold;
         }
 
+        .speed-status {
+            text-align: center;
+            color: #6b7280;
+            margin-top: 10px;
+        }
+
         pre {
             background: #111827;
             color: #e5e7eb;
@@ -90,104 +106,590 @@
         }
 
         @media (max-width: 800px) {
+
             .cards {
                 grid-template-columns: repeat(2, 1fr);
             }
+
         }
 
         @media (max-width: 500px) {
+
             .cards {
                 grid-template-columns: 1fr;
             }
+
         }
+
     </style>
+
 </head>
+
 
 <body>
 
+
 <div class="container">
 
-    <h1>Network Performance Analyzer</h1>
+
+    <h1>
+        Network Performance Analyzer
+    </h1>
+
 
     <p class="subtitle">
         Cloud-Based Network Monitoring and Performance Analysis
     </p>
 
-    <form action="/" method="get">
-        <button class="button" type="submit">
-            Run Network Test
-        </button>
-    </form>
 
-    <a href="/history" class="button" style="text-decoration: none; text-align: center;">
+    <!-- Single Network Test Button -->
+
+    <button
+        id="testButton"
+        class="button"
+        type="button"
+        onclick="runFullTest()">
+
+        Run Network Test
+
+    </button>
+
+
+    <p
+        id="speedStatus"
+        class="speed-status">
+
+        Ready to test your network.
+
+    </p>
+
+
+    <!-- History -->
+
+    <a
+        href="/history"
+        class="button"
+        style="text-decoration: none; text-align: center;">
+
         View Test History
+
     </a>
+
+
+    <!-- Performance Cards -->
 
     <div class="cards">
 
-        <div class="card">
-            <h3>Latency</h3>
-            <div class="value">{{ latency }} ms</div>
-        </div>
 
         <div class="card">
-            <h3>Packet Loss</h3>
-            <div class="value">{{ packet_loss }}%</div>
+
+            <h3>
+                Latency
+            </h3>
+
+            <div
+                class="value"
+                id="latency-value">
+
+                {{ latency }} ms
+
+            </div>
+
         </div>
 
-        <div class="card">
-            <h3>Download</h3>
-            <div class="value">{{ download_speed }} Mbps</div>
-        </div>
 
         <div class="card">
-            <h3>Upload</h3>
-            <div class="value">{{ upload_speed }} Mbps</div>
+
+            <h3>
+                Packet Loss
+            </h3>
+
+            <div
+                class="value"
+                id="packet-loss-value">
+
+                {{ packet_loss }}%
+
+            </div>
+
         </div>
+
+
+        <div class="card">
+
+            <h3>
+                Download
+            </h3>
+
+            <div
+                class="value"
+                id="download-speed">
+
+                Not Tested
+
+            </div>
+
+        </div>
+
+
+        <div class="card">
+
+            <h3>
+                Upload
+            </h3>
+
+            <div
+                class="value"
+                id="upload-speed">
+
+                Not Tested
+
+            </div>
+
+        </div>
+
 
     </div>
 
+
+    <!-- Network Status -->
+
     <div class="section">
 
-        <h2>Network Status</h2>
+        <h2>
+            Network Status
+        </h2>
 
-        <p class="status">
+        <p
+            class="status"
+            id="network-status">
+
             {{ status }}
+
         </p>
 
         <p>
-            <strong>Target Server:</strong> 8.8.8.8
+
+            <strong>
+                Target Server:
+            </strong>
+
+            8.8.8.8
+
         </p>
 
     </div>
 
+
+    <!-- Network Information -->
+
     <div class="section">
 
-        <h2>Network Information</h2>
+        <h2>
+            Network Information
+        </h2>
 
         <p>
-            <strong>Hostname:</strong> {{ hostname }}
+
+            <strong>
+                Hostname:
+            </strong>
+
+            {{ hostname }}
+
         </p>
 
         <p>
-            <strong>Local IP:</strong> {{ local_ip }}
+
+            <strong>
+                Local IP:
+            </strong>
+
+            {{ local_ip }}
+
         </p>
 
         <p>
-            <strong>Operating System:</strong> {{ operating_system }}
+
+            <strong>
+                Operating System:
+            </strong>
+
+            {{ operating_system }}
+
         </p>
 
     </div>
 
+
+    <!-- Ping Details -->
+
     <div class="section">
 
-        <h2>Ping Details</h2>
+        <h2>
+            Ping Details
+        </h2>
 
         <pre>{{ ping_output }}</pre>
 
     </div>
 
+
 </div>
 
+
+<script type="module">
+
+import SpeedTest
+    from "https://cdn.skypack.dev/@cloudflare/speedtest";
+
+
+window.runFullTest = function () {
+
+    const button =
+        document.getElementById("testButton");
+
+    const downloadElement =
+        document.getElementById("download-speed");
+
+    const uploadElement =
+        document.getElementById("upload-speed");
+
+    const statusElement =
+        document.getElementById("speedStatus");
+
+
+    button.disabled = true;
+
+    button.textContent =
+        "Testing...";
+
+
+    downloadElement.textContent =
+        "Testing...";
+
+    uploadElement.textContent =
+        "Testing...";
+
+
+    statusElement.textContent =
+        "Measuring Internet speed...";
+
+
+    const engine = new SpeedTest({
+
+        autoStart: false,
+
+        measurements: [
+
+            { type: "latency", numPackets: 1 },
+
+            {
+                type: "download",
+                bytes: 1e5,
+                count: 1,
+                bypassMinDuration: true
+            },
+
+            {
+                type: "latency",
+                numPackets: 20
+            },
+
+            {
+                type: "download",
+                bytes: 1e5,
+                count: 9
+            },
+
+            {
+                type: "download",
+                bytes: 1e6,
+                count: 8
+            },
+
+            {
+                type: "upload",
+                bytes: 1e5,
+                count: 8
+            },
+
+            {
+                type: "upload",
+                bytes: 1e6,
+                count: 6
+            },
+
+            {
+                type: "download",
+                bytes: 1e7,
+                count: 6
+            },
+
+            {
+                type: "upload",
+                bytes: 1e7,
+                count: 4
+            },
+
+            {
+                type: "download",
+                bytes: 2.5e7,
+                count: 4
+            },
+
+            {
+                type: "upload",
+                bytes: 2.5e7,
+                count: 4
+            },
+
+            {
+                type: "download",
+                bytes: 1e8,
+                count: 3
+            },
+
+            {
+                type: "upload",
+                bytes: 5e7,
+                count: 3
+            },
+
+            {
+                type: "download",
+                bytes: 2.5e8,
+                count: 2
+            }
+
+        ]
+
+    });
+
+
+    engine.onRunningChange = (running) => {
+
+        if (running) {
+
+            statusElement.textContent =
+                "Testing Internet connection...";
+
+        }
+
+    };
+
+
+    engine.onResultsChange = ({ type }) => {
+
+        console.log(
+            "Test progress:",
+            type
+        );
+
+
+        if (type === "download") {
+
+            statusElement.textContent =
+                "Measuring download speed...";
+
+        }
+
+
+        if (type === "upload") {
+
+            statusElement.textContent =
+                "Measuring upload speed...";
+
+        }
+
+    };
+
+
+    engine.onFinish = async (results) => {
+
+        console.log(
+            "Speed test finished"
+        );
+
+
+        const summary =
+            results.getSummary();
+
+
+        console.log(
+            "Final result:",
+            summary
+        );
+
+
+        /*
+         * Cloudflare speed result
+         */
+
+        const downloadMbps =
+            summary.download / 1000000;
+
+        const uploadMbps =
+            summary.upload / 1000000;
+
+
+        /*
+         * Display download/upload
+         */
+
+        downloadElement.textContent =
+            downloadMbps.toFixed(2)
+            + " Mbps";
+
+
+        uploadElement.textContent =
+            uploadMbps.toFixed(2)
+            + " Mbps";
+
+
+        /*
+         * Get latency and packet loss
+         * from dashboard values.
+         */
+
+        const latencyElement =
+            document.getElementById(
+                "latency-value"
+            );
+
+
+        const packetLossElement =
+            document.getElementById(
+                "packet-loss-value"
+            );
+
+
+        const latency =
+            parseFloat(
+                latencyElement.textContent
+            );
+
+
+        const packetLoss =
+            parseFloat(
+                packetLossElement.textContent
+            );
+
+
+        /*
+         * Save complete result
+         * into Flask database.
+         */
+
+        try {
+
+            const response =
+                await fetch(
+                    "/save-speed-test",
+                    {
+
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
+
+                        body: JSON.stringify({
+
+                            latency:
+                                latency,
+
+                            packet_loss:
+                                packetLoss,
+
+                            download_speed:
+                                Number(
+                                    downloadMbps.toFixed(2)
+                                ),
+
+                            upload_speed:
+                                Number(
+                                    uploadMbps.toFixed(2)
+                                )
+
+                        })
+
+                    }
+                );
+
+
+            const data =
+                await response.json();
+
+
+            if (data.success) {
+
+                statusElement.textContent =
+                    "Network test completed and saved successfully.";
+
+            }
+
+
+        }
+        catch (error) {
+
+            console.error(
+                "Database save error:",
+                error
+            );
+
+
+            statusElement.textContent =
+                "Test completed, but database save failed.";
+
+        }
+
+
+        button.disabled = false;
+
+        button.textContent =
+            "Run Network Test";
+
+    };
+
+
+    engine.onError = (error) => {
+
+        console.error(
+            "Speed test error:",
+            error
+        );
+
+
+        statusElement.textContent =
+            "Speed test failed. Check console.";
+
+
+        downloadElement.textContent =
+            "Error";
+
+
+        uploadElement.textContent =
+            "Error";
+
+
+        button.disabled = false;
+
+        button.textContent =
+            "Run Network Test";
+
+    };
+
+
+    engine.play();
+
+};
+
+
+</script>
+
+
 </body>
+
 </html>
