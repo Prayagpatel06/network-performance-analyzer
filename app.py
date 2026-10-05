@@ -58,16 +58,19 @@ def check_ping(host="8.8.8.8"):
 
     return average_latency, packet_loss, output
 
+# def check_speed():
+#     import speedtest
+
+#     st = speedtest.Speedtest()
+#     st.get_best_server()
+
+#     download_speed = st.download() / 1_000_000
+#     upload_speed = st.upload() / 1_000_000
+
+#     return round(download_speed, 2), round(upload_speed, 2)
+
 def check_speed():
-    import speedtest
-
-    st = speedtest.Speedtest()
-    st.get_best_server()
-
-    download_speed = st.download() / 1_000_000
-    upload_speed = st.upload() / 1_000_000
-
-    return round(download_speed, 2), round(upload_speed, 2)
+    return 0, 0
 
 def get_network_info():
     hostname = socket.gethostname()
